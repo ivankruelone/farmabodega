@@ -121,15 +121,15 @@ function insert_d()
 	public function tabla_control_historico()
 	{
 	   $data = array();
-       $data['menu'] = 'pedido';
+       $data['menu'] = 'traspaso';
        //$data['sidebar'] = "head/sidebar";
        //$data['widgwet'] = "main/widwets";
        //$data['sidebar'] = "main/dondeestoy";
-       $this->load->model('pedido_model');
+       $this->load->model('traspaso_model');
        
-       $data['titulo'] = "HISTORICO  DE PEDIDOS DE FARMABODEGA";
-       $data['contenido'] = "pedido/pedido_c";
-       $data['tabla'] = $this->pedido_model->control_historico();
+       $data['titulo'] = "HISTORICO  DE TRASPASO DE FARMABODEGA";
+       $data['contenido'] = "traspaso/traspaso_c";
+       $data['tabla'] = $this->traspaso_model->control_historico();
        
 			
 		$this->load->view('header');
@@ -141,20 +141,21 @@ function insert_d()
 	public function detalle_historico($id_cc)
 	{
 	   $data = array();
-       $data['menu'] = 'pedido';
+       $data['menu'] = 'traspaso';
        //$data['sidebar'] = "head/sidebar";
        //$data['widgwet'] = "main/widwets";
        //$data['sidebar'] = "main/dondeestoy";
-       $this->load->model('pedido_model');
-       $trae = $this->pedido_model->trae_datos_c($id_cc);
+       $this->load->model('traspaso_model');
+       $trae = $this->traspaso_model->trae_datos_c($id_cc);
        $row = $trae->row();
        
-       $tit = "Sucursal.:  $row->suc - $row->sucx   <br />  Folio: $id_cc";
+       $tit = "Sucursal.: Sale mercancia $row->sale - $row->salex
+       <br />Entra mercancia $row->entra - $row->entrax   <br />  Folio: $id_cc";
        
-       $data['titulo'] = "HISTORICO  DE COMPRA DE FARMABODEGA";
+       $data['titulo'] = "HISTORICO  DE TRASPASO DE FARMABODEGA";
        $data['id_cc'] =$id_cc;
-       $data['contenido'] = "pedido/pedido_c";
-       $data['tabla'] = $this->pedido_model->detalle_d_historico($id_cc,$tit);
+       $data['contenido'] = "traspaso/traspaso_c";
+       $data['tabla'] = $this->traspaso_model->detalle_d_historico($id_cc,$tit);
        
 			
 		$this->load->view('header');
@@ -167,8 +168,8 @@ function insert_d()
    function imprime_d($id_cc)
 	{
 		
-            $this->load->model('pedido_model');
-            $trae = $this->pedido_model->trae_datos_c($id_cc);
+            $this->load->model('traspaso_model');
+            $trae = $this->traspaso_model->trae_datos_c($id_cc);
             $row = $trae->row();
             
             $data['cabeza'] = "
@@ -179,13 +180,15 @@ function insert_d()
             </tr>
             
             <tr>
-            <td colspan=\"4\" align=\"center\">PEDIDO DE MERCANCIA</td>
+            <td colspan=\"4\" align=\"center\">TRASPASO DE MERCANCIA</td>
             </tr>
             
             <tr>
-            <td colspan=\"4\"> SUCURSAL.:  $row->suc - $row->sucx</td>   
+            <td colspan=\"4\"> Sale.:  $row->sale - $row->salex</td>   
             </tr>
-            
+            <tr>
+            <td colspan=\"4\"> Entra.:  $row->entra - $row->entrax</td>   
+            </tr>
             <tr>
             <td colspan=\"4\" align=\"right\">  FOLIO DE PEDIDO: $id_cc</td>
             </tr>
@@ -195,7 +198,7 @@ function insert_d()
             </tr>
             
             </table>";
-            $data['detalle'] = $this->pedido_model->imprime_detalle($id_cc);
+            $data['detalle'] = $this->traspaso_model->imprime_detalle($id_cc);
             $this->load->view('impresiones/reporte', $data);
 			
 		}
@@ -206,8 +209,8 @@ function insert_d()
    function imprime_e($id_cc)
 	{
 		
-            $this->load->model('pedido_model');
-            $trae = $this->pedido_model->trae_datos_c($id_cc);
+            $this->load->model('traspaso_model');
+            $trae = $this->traspaso_model->trae_datos_c($id_cc);
             $row = $trae->row();
             
             $data['cabeza'] = "
@@ -218,11 +221,14 @@ function insert_d()
             </tr>
             
             <tr>
-            <td colspan=\"5\" align=\"center\">PEDIDO DE MERCANCIA</td>
+            <td colspan=\"5\" align=\"center\">TRASPASO DE MERCANCIA</td>
             </tr>
             
             <tr>
-            <td colspan=\"5\"> SUCURSAL.:  $row->suc - $row->sucx</td>   
+            <td colspan=\"4\"> Sale.:  $row->sale - $row->salex</td>   
+            </tr>
+            <tr>
+            <td colspan=\"4\"> Entra.:  $row->entra - $row->entrax</td>   
             </tr>
             
             <tr>
@@ -234,7 +240,7 @@ function insert_d()
             </tr>
             
             </table>";
-            $data['detalle'] = $this->pedido_model->imprime_detalle_e($id_cc);
+            $data['detalle'] = $this->traspaso_model->imprime_detalle_e($id_cc);
             $this->load->view('impresiones/reporte', $data);
 			
 		}

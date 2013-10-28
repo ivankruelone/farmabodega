@@ -97,6 +97,7 @@
                 <?php echo anchor('traspaso', 'Traspaso', 'class="dashboard"')?><span title="You have 2 new tasks">2</span>
 					<ul>
 						<li><?php echo anchor('traspaso/tabla_control', 'Traspaso')?></li>
+                        <li><?php echo anchor('traspaso/tabla_control_historico', 'Historico de Traspaso')?></li>
 						
 					</ul>
 				</li>

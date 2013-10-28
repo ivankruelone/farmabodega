@@ -57,7 +57,7 @@
         
         $this->db->select('a.*, b.susa1, b.susa2,b.prv,b.prvx');
         $this->db->from('traspaso_d a');
-        $this->db->join('catalogo.catalogo_bodega b','a.clave=b.clabo');
+        $this->db->join('catalogo.catalogo_bodega_clave b','a.clave=b.clabo');
         $this->db->where('id_cc',$id_cc);
         $this->db->where('a.activo',1);
         $this->db->order_by('a.id desc');
@@ -109,44 +109,46 @@
     function control_historico()
     {
        
-       $this->db->select('a.*');
-       $this->db->from('pedido_c a');
-        $this->db->where('tipo', 1);
-       $this->db->order_by('fecha desc');
-       $query = $this->db->get();
+       $this->db->select('a.*,b.nombre as salex,c.nombre as entrax');
+        $this->db->from('traspaso_c a');
+        $this->db->join('catalogo.sucursal b','a.sale=b.suc');
+        $this->db->join('catalogo.sucursal c','a.entra=c.suc');
+        $this->db->where('activo',1);
+        $this->db->where('tipos',2);
+        $this->db->order_by('id desc');
+        $query = $this->db->get();
         
+        
+        //titulos//
         $tabla= "
-        <table id=\"hor-minimalist-b\">
+        <table>
         <thead>
         <tr>
-        <th>Pedido</th>
-        <th>Suc</th>
-        <th align=\"left\" colspan=\"2\">Sucursal</th>
-        <th align=\"left\">Fecha</th>
+        <th align=\"center\">Folio</th>
+        <th align=\"left\">Sale</th>
+        <th align=\"left\">Entra</th>
+        
+        
         </tr>
-        </thead>
-        <tbody>
-        ";
+        </thead>";
         
         foreach($query->result() as $row)
         {
-            $l1 = anchor('pedido/detalle_historico/'.$row->id, '<img src="'.base_url().'img/icons/list-style/icon_list_style_arrow.png" border="0" width="20px" /></a>', array('title' => 'Haz Click aqui para agregar productos a la factura!', 'class' => 'encabezado'));
-            $l2 = anchor('pedido/imprime_d/'.$row->id, '<img src="'.base_url().'img/reportes2.png" border="0" width="20px" /></a>', array('title' => 'Haz Click aqui para imprimir pedido!', 'class' => 'encabezado'));
-            $l3 = anchor('pedido/imprime_e/'.$row->id, '<img src="'.base_url().'img/icon_nav_products.png" border="0" width="20px" /></a>', array('title' => 'Haz Click aqui para imprimir solo existencia!', 'class' => 'encabezado'));
+            $l1 = anchor('traspaso/detalle_historico/'.$row->id, '<img src="'.base_url().'img/icons/list-style/icon_list_style_arrow.png" border="0" width="20px" /></a>', array('title' => 'Haz Click aqui para agregar productos a la factura!', 'class' => 'encabezado'));
+            $l2 = anchor('traspaso/imprime_d/'.$row->id, '<img src="'.base_url().'img/reportes2.png" border="0" width="20px" /></a>', array('title' => 'Haz Click aqui para imprimir pedido!', 'class' => 'encabezado'));
+            $l3 = anchor('traspaso/imprime_e/'.$row->id, '<img src="'.base_url().'img/icon_nav_products.png" border="0" width="20px" /></a>', array('title' => 'Haz Click aqui para imprimir solo existencia!', 'class' => 'encabezado'));
             $tabla.="
             <tr>
-            <td align=\"center\">".$row->id."</td>
-            <td align=\"center\">".$row->suc."</td>
-            <td align=\"left\">".$row->sucx."</td>
-            <td align=\"left\">".$row->fecha."</td>
-            <td align=\"left\">$l1</td>
-            <td align=\"left\">$l2</td>
-            <td align=\"left\">$l3</td>
-            
-            </tr>
-            ";
-        }
+        <td align=\"center\">$row->id</td>
         
+        <td align=\"left\">".$row->sale."-".$row->salex." </td>
+        <td align=\"left\">".$row->entra."-".$row->entrax." </td>
+        <td align=\"center\">$l1</td>
+        <td align=\"center\">$l2</td>
+        <td align=\"center\">$l3</td>
+        </tr>
+        ";
+        }
         $tabla.="
         </tbody>
         </table>";
@@ -163,10 +165,10 @@
     {
        
        $this->db->select('a.*,b.susa1, b.susa2');
-       $this->db->from('farmabodega.pedido_d a');
+       $this->db->from('farmabodega.traspaso_d a');
        $this->db->join('catalogo.catalogo_bodega b', 'a.clave=b.clabo', 'LEFT');
        $this->db->where('id_cc',$id_cc);
-       $this->db->where('tipo',1);
+       //$this->db->where('tipos',1);
        $query = $this->db->get();
        
         
@@ -197,7 +199,7 @@
             <td align=\"center\">".$row->clave."</td>
             <td align=\"left\">".$row->susa1."</td>
             <td align=\"left\">".$row->susa2."</td>
-            <td align=\"center\">".$row->canp."</td>
+            <td align=\"center\">".$row->cans."</td>
             </tr>
             ";
         }
@@ -214,9 +216,9 @@ function imprime_detalle($id)
     {
         $tocan=0;
         $num=0;
-        $sql = "SELECT a.*,b.susa1,b.susa2 from pedido_d a
+        $sql = "SELECT a.*,b.susa1,b.susa2 from traspaso_d a
         left join catalogo.catalogo_bodega b on a.clave=b.clabo
-        where a.id_cc= ? and a.tipo=1 order by clave";
+        where a.id_cc= ?  order by clave";
         $query = $this->db->query($sql,array($id));
         
         $tabla= "
@@ -251,10 +253,10 @@ function imprime_detalle($id)
             <td width=\"70\" align=\"left\">".$row->clave."</td>
             <td width=\"230\" align=\"left\">".$row->susa1."</td>
             <td width=\"230\" align=\"left\">".$row->susa2."</td>
-            <td width=\"80\" align=\"right\">".$row->canp."</td>
+            <td width=\"80\" align=\"right\">".$row->cans."</td>
             </tr>
             ";
-        $tocan=$tocan+$row->canp;
+        $tocan=$tocan+$row->cans;
         $num=$num+1;
         }
         
@@ -280,10 +282,10 @@ function imprime_detalle_e($id)
     {
         $tocan=0;
         $num=0;
-        $sql = "SELECT a.*,b.susa1,b.susa2,c.lote from pedido_d a
+        $sql = "SELECT a.*,b.susa1,b.susa2 from traspaso_d a
         left join catalogo.catalogo_bodega b on a.clave=b.clabo
         left join inventario_d_clave c on a.clave=c.clave
-        where a.id_cc= ? and a.tipo=1 and c.cantidad>0 order by clave";
+        where a.id_cc= ?  and c.cantidad>0 order by clave";
         $query = $this->db->query($sql,array($id));
         
         $tabla= "
@@ -319,11 +321,11 @@ function imprime_detalle_e($id)
             <td width=\"70\" align=\"left\">".$row->clave."</td>
             <td width=\"150\" align=\"left\">".$row->susa1."</td>
             <td width=\"230\" align=\"left\">".$row->susa2."</td>
-            <td width=\"80\" align=\"right\">".$row->canp."</td>
+            <td width=\"80\" align=\"right\">".$row->cans."</td>
             <td width=\"80\" align=\"right\">".$row->lote."</td>
             </tr>
             ";
-        $tocan=$tocan+$row->canp;
+        $tocan=$tocan+$row->cans;
         $num=$num+1;
         }
         
@@ -361,7 +363,7 @@ function trae_datos_c($id_cc){
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 function trae_datos($id_cc,$clave){
-    $sql = "SELECT *  FROM pedido_d  where id_cc= ? and  clave= ? ";
+    $sql = "SELECT *  FROM traspaso_d  where id_cc= ? and  clave= ? ";
     $query = $this->db->query($sql,array($id_cc,$clave));
      return $query;
     }
@@ -369,7 +371,7 @@ function trae_datos($id_cc,$clave){
 /////////////////////////////////////////////////////////////////////////////////
 function busca_canp($clave,$can)
 	{
-		$sql = "SELECT *from pedido_d  
+		$sql = "SELECT *from traspaso_d  
         where clave= ? and canp >= ? ";
         $query = $this->db->query($sql,array($clave,$can));
         return $query->num_rows(); 
@@ -415,12 +417,14 @@ function create_member_c($sale,$entra)
 function create_member_d($id_cc,$clave,$can,$lote,$cad)
 	{
         
-      $sql = "SELECT * FROM catalogo.catalogo_bodega where clabo= ? ";
+      $sql = "SELECT * FROM catalogo.catalogo_bodega_clave where clabo= ? ";
         $query = $this->db->query($sql,array($clave));
         if($query->num_rows() > 0){
         $row= $query->row();
         $vta=$row->vtabo; 
         $lin=$row->lin;
+        $costo=$row->costo;
+        $codigo=$row->codigo;
         
         $sql1 = "SELECT * FROM traspaso_d where id_cc= ? and clave= ? and lote= ? and activo= 1 ";
        $query1 = $this->db->query($sql1,array($id_cc,$clave,$lote));
@@ -436,6 +440,8 @@ function create_member_d($id_cc,$clave,$can,$lote,$cad)
             'cad' => $cad,
             'cane' => $can,
             'cans' => $can,
+            'costo'=>$costo,
+            'codigo'=>$codigo,
             'fecha'=> date('Y-m-d H:s:i'),
             'activo'=>1
             						

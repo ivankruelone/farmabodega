@@ -54,7 +54,7 @@
         
         $this->db->select('a.*, b.susa1, b.susa2,b.prv,b.prvx');
         $this->db->from('pedido_d a');
-        $this->db->join('catalogo.catalogo_bodega b','a.clave=b.clabo');
+        $this->db->join('catalogo.catalogo_bodega_clave b','a.clave=b.clabo');
         $this->db->where('id_cc',$id_cc);
         $this->db->where('tipo',0);
         $query = $this->db->get();
@@ -156,7 +156,7 @@
        
        $this->db->select('a.*,b.susa1, b.susa2');
        $this->db->from('farmabodega.pedido_d a');
-       $this->db->join('catalogo.catalogo_bodega b', 'a.clave=b.clabo', 'LEFT');
+       $this->db->join('catalogo.catalogo_bodega_clave b', 'a.clave=b.clabo', 'LEFT');
        $this->db->where('id_cc',$id_cc);
        $this->db->where('tipo',1);
        $query = $this->db->get();
@@ -207,7 +207,7 @@ function imprime_detalle($id)
         $tocan=0;
         $num=0;
         $sql = "SELECT a.*,b.susa1,b.susa2 from pedido_d a
-        left join catalogo.catalogo_bodega b on a.clave=b.clabo
+        left join catalogo.catalogo_bodega_clave b on a.clave=b.clabo
         where a.id_cc= ? and a.tipo=1 order by clave";
         $query = $this->db->query($sql,array($id));
         
@@ -273,7 +273,7 @@ function imprime_detalle_e($id)
         $tocan=0;
         $num=0;
         $sql = "SELECT a.*,b.susa1,b.susa2,c.lote from pedido_d a
-        left join catalogo.catalogo_bodega b on a.clave=b.clabo
+        left join catalogo.catalogo_bodega_clave b on a.clave=b.clabo
         left join inventario_d_clave c on a.clave=c.clave
         where a.id_cc= ? and a.tipo=1 and c.cantidad>0 order by clave";
         $query = $this->db->query($sql,array($id));
@@ -395,7 +395,7 @@ function create_member_c($suc)
 function create_member_d($id_cc,$clave,$can)
 	{
         
-      $sql = "SELECT * FROM catalogo.catalogo_bodega where clabo= ? ";
+      $sql = "SELECT * FROM catalogo.catalogo_bodega_clave where clabo= ? ";
         $query = $this->db->query($sql,array($clave));
         if($query->num_rows() > 0){
         $row= $query->row();

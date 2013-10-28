@@ -366,7 +366,8 @@ function create_member_d($id_cc,$orden,$clave,$lote,$cad,$can,$canr)
         
         $row= $query->row();
         $cansbo=$row->cansbo;    
-        $costo=$row->costo; 
+        $costo=$row->costo;
+        $codigo=$row->codigo; 
         
         
         $sql1 = "SELECT * FROM compra_d where id_cc= ? and clave= ? and lote= ? ";
@@ -385,6 +386,7 @@ function create_member_d($id_cc,$orden,$clave,$lote,$cad,$can,$canr)
 			'fecha'=> date('Y-m-d H:s:i'),
             'canp'=> $cansbo,
             'costo'=> $costo,
+            'codigo'=>$codigo,
             'canr'=> $canr
             						
 		);
@@ -428,7 +430,7 @@ $sql0 = "SELECT * FROM compra_d where id_cc= ? and aplica='NO' ";
         //////////////////////////////////////////////////////////////////inventario_d
         // clave, can, lote, caducidad
         
-        $this->__actualiza_inventario_d($row0->id,$row0->clave, $row0->can,$row0->canr, $row0->lote, $row0->caducidad);
+        $this->__actualiza_inventario_d($row0->id,$row0->clave, $row0->can,$row0->canr, $row0->lote, $row0->caducidad, $row0->costo, $row0->codigo);
         
         
         //////////////////////////////////////////////////////////////////compraped
@@ -477,7 +479,7 @@ private function __cierra_compra_c($id)
 
 }
 
-private function __actualiza_inventario_d($id_d,$clave, $cantidad,$cantidadr, $lote, $caducidad)
+private function __actualiza_inventario_d($id_d,$clave, $cantidad,$cantidadr, $lote, $caducidad,$costo,$codigo)
 {
         $sql2 = "SELECT * FROM inventario_d where clave= ? and lote = ? ";
            $query2 = $this->db->query($sql2,array($clave,$lote));
@@ -486,7 +488,9 @@ private function __actualiza_inventario_d($id_d,$clave, $cantidad,$cantidadr, $l
 			       'clave' => $clave,
                    'lote' => $lote,
                    'caducidad' => $caducidad,
-			       'cantidad' => $cantidad+$cantidadr
+			       'cantidad' => $cantidad+$cantidadr,
+                   'costo'=>$costo,
+                   'codigo'=>$codigo
 		           );
 		
 		  $insert = $this->db->insert('inventario_d', $new_member_insert_data);

@@ -57,7 +57,7 @@
     {
        $this->db->select('a.*,sum(a.cans)as cans,b.susa1,b.susa2');
        $this->db->from('farmabodega.surtido_d a');
-       $this->db->join('catalogo.catalogo_bodega b', 'a.clave=b.clabo');
+       $this->db->join('catalogo.catalogo_bodega_clave b', 'a.clave=b.clabo');
        $this->db->where('a.id_ped',$id_cc);
        $this->db->group_by('a.clave');
        $this->db->order_by('a.id');
@@ -203,8 +203,8 @@ $sql0 = "SELECT * FROM surtido_d where id_ped= ? and aplica='NO'";
         $query0 = $this->db->query($sql0,array($id));
         foreach($query0->result() as $row0)
         {
-            $this->__actualiza_inventario_d($row0->clave,$row0->lote,$row0->cans);
-            $this->__cierra_surtido_d($row0->id,$row0->clave);
+            $this->__actualiza_inventario_d($row0->clave,$row0->lote,$row0->cans,$row0->costo,$row0->codigo);
+            $this->__cierra_surtido_d($row0->id,$row0->clave,$row0->costo,$row0->codigo);
         }
 }
 //////////////////////////////////////////////////////////////////////////////////    
@@ -220,9 +220,9 @@ $data = array(
       $this->db->update('pedido_c', $data); 
 }
 //////////////////////////////////////////////////////////////////////////////////
-private function __cierra_surtido_d($id_detalle,$clave)
+private function __cierra_surtido_d($id_detalle,$clave,$costo,$codigo)
 {
- $sql = "SELECT * FROM catalogo.catalogo_bodega where clabo= ? ";
+ $sql = "SELECT * FROM catalogo.catalogo_bodega_clave where clabo= ? ";
         $query = $this->db->query($sql,array($clave));
         if($query->num_rows() > 0){
             $row= $query->row();
@@ -239,7 +239,7 @@ private function __cierra_surtido_d($id_detalle,$clave)
             }
 }    
 //////////////////////////////////////////////////////////////////////////////////
-private function __actualiza_inventario_d($clave,$lote,$cans)
+private function __actualiza_inventario_d($clave,$lote,$cans,$costo,$codigo)
 {
 $sql2 = "SELECT * FROM inventario_d where clave= ? and lote = ? ";
            $query2 = $this->db->query($sql2,array($clave,$lote));
@@ -248,7 +248,9 @@ $sql2 = "SELECT * FROM inventario_d where clave= ? and lote = ? ";
            $existencia=$row2->cantidad; 
            
 $data1 = array(
-			'cantidad' => $existencia - $cans
+			'cantidad' => $existencia - $cans,
+            'costo' => $costo,
+            'codigo'=> $codigo
 			);
 		    
             $this->db->where('clave', $clave);
@@ -315,7 +317,7 @@ $data1 = array(
        
        $this->db->select('a.*,b.susa1, b.susa2');
        $this->db->from('farmabodega.surtido_d a');
-       $this->db->join('catalogo.catalogo_bodega b', 'a.clave=b.clabo');
+       $this->db->join('catalogo.catalogo_bodega_clave b', 'a.clave=b.clabo');
        $this->db->where('id_ped',$id_cc);
        $this->db->where('aplica','SI');
        $query = $this->db->get();
@@ -372,7 +374,7 @@ function imprime_detalle($id)
         $tocan=0;
         $num=0;
         $sql = "SELECT a.*,b.susa1,b.susa2 from surtido_d a
-        left join catalogo.catalogo_bodega b on a.clave=b.clabo
+        left join catalogo.catalogo_bodega_clave b on a.clave=b.clabo
         where a.id_ped= ? and a.aplica='SI' order by clave";
         $query = $this->db->query($sql,array($id));
         
@@ -487,7 +489,7 @@ function imprime_detalle_negados($id)
         foreach($query->result() as $row)
         {
             
-        $sql2 = "SELECT * FROM catalogo.catalogo_bodega where clabo= ? ";
+        $sql2 = "SELECT * FROM catalogo.catalogo_bodega_codigo where clabo= ? ";
         $query2 = $this->db->query($sql2,array($row->clave));
         $row2= $query2->row();
         $susa1=$row2->susa1;
